@@ -1,3 +1,13 @@
-# HomeHelper
-## Best change
-![GdzUdomlyaLogo](https://i.pinimg.com/736x/35/d5/fc/35d5fc5f6c76754871c3b6583b0ee55d.jpg)
+# __**HomeHelper**__
+## __Учебный помощник для _быстрого_ перехода к нужному решению__
+
+![Logo](./resourses/ReadmeImage/logo.png)
+
+### Для чего нужен?
+[Home Helper](https://kelfy87.github.io/HomeHelper/) - это быстрое решение повседневных задач. Благодаря сайту, вам больше не придется тратить много времени.
+
+
+### Функционал
+
+### Планы на будущее
+
