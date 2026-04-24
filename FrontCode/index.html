@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Helper</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="hero">
+            <div class="hero__content">
+                <p class="hero__eyebrow">HOME HELPER v1.1</p>
+                <h1>Учебный помощник для быстрого перехода к нужному решению</h1>
+                <p class="hero__text">
+                    Сайт повторяет логику программы из <code>main.cpp</code>: выбери предмет, введи данные
+                    и сразу получи готовую ссылку на нужную страницу.
+                </p>
+                <div class="hero__stats">
+                    <div class="stat-card">
+                        <span class="stat-card__value">4</span>
+                        <span class="stat-card__label">режима поиска</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card__value">3</span>
+                        <span class="stat-card__label">новые удобные функции</span>
+                    </div>
+                </div>
+            </div>
+            <aside class="hero__panel">
+                <h2>Что нового</h2>
+                <ol class="command-list">
+                    <li>Копирование готовой ссылки в один клик</li>
+                    <li>История последних запросов</li>
+                    <li>Избранные шаблоны для быстрых переходов</li>
+                </ol>
+            </aside>
+        </header>
+
+        <main class="content-grid">
+            <section class="subjects">
+                <article class="subject-card subject-card--active" data-mode="1">
+                    <div class="subject-card__number">01</div>
+                    <h3>Обществознание</h3>
+                    <p>Введи страницу, чтобы открыть нужный раздел на GDZ.</p>
+                </article>
+
+                <article class="subject-card" data-mode="2">
+                    <div class="subject-card__number">02</div>
+                    <h3>История</h3>
+                    <p>Поддерживается параграф или диапазон в формате <code>1-2</code>.</p>
+                </article>
+
+                <article class="subject-card" data-mode="3">
+                    <div class="subject-card__number">03</div>
+                    <h3>Английский</h3>
+                    <p>Выбери тип книги <code>WB</code> или <code>SB</code> и укажи страницу.</p>
+                </article>
+
+                <article class="subject-card" data-mode="4">
+                    <div class="subject-card__number">04</div>
+                    <h3>Химия</h3>
+                    <p>Укажи главу и номер задания для перехода к решению.</p>
+                </article>
+            </section>
+
+            <section class="workspace">
+                <div class="workspace__header">
+                    <p class="workspace__label">Рабочая область</p>
+                    <h2 id="form-title">Обществознание</h2>
+                    <p class="workspace__hint" id="form-hint">Введи номер страницы, например 12.</p>
+                </div>
+
+                <form id="helper-form" class="helper-form">
+                    <div class="form-layout" id="dynamic-fields">
+                        <label class="field">
+                            <span>Страница</span>
+                            <input type="number" name="page" min="1" placeholder="Например, 12" required>
+                        </label>
+                    </div>
+
+                    <div class="quick-tips" id="quick-tips"></div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="button button--primary">Собрать ссылку</button>
+                        <button type="button" class="button button--ghost" id="copy-button">Скопировать ссылку</button>
+                        <button type="button" class="button button--ghost" id="favorite-button">В избранное</button>
+                        <button type="button" class="button button--ghost" id="reset-button">Сбросить</button>
+                    </div>
+                </form>
+
+                <section class="result-card" aria-live="polite">
+                    <div class="result-card__header">
+                        <h3>Результат</h3>
+                        <span class="status-badge" id="status-badge">Ожидание ввода</span>
+                    </div>
+
+                    <p class="result-card__text" id="result-message">
+                        Выбери предмет и заполни форму, чтобы получить готовую ссылку.
+                    </p>
+
+                    <a id="result-link" class="result-link result-link--disabled" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">
+                        Ссылка появится здесь
+                    </a>
+                </section>
+
+                <section class="storage-grid">
+                    <section class="mini-panel">
+                        <div class="mini-panel__header">
+                            <h3>Избранное</h3>
+                            <button type="button" class="text-button" id="clear-favorites-button">Очистить</button>
+                        </div>
+                        <div class="chip-list" id="favorites-list">
+                            <p class="empty-state">Пока пусто. Сохрани часто используемые запросы.</p>
+                        </div>
+                    </section>
+
+                    <section class="mini-panel">
+                        <div class="mini-panel__header">
+                            <h3>История</h3>
+                            <button type="button" class="text-button" id="clear-history-button">Очистить</button>
+                        </div>
+                        <div class="history-list" id="history-list">
+                            <p class="empty-state">Последние переходы появятся здесь.</p>
+                        </div>
+                    </section>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const subjectCards = document.querySelectorAll(".subject-card");
+        const formTitle = document.getElementById("form-title");
+        const formHint = document.getElementById("form-hint");
+        const dynamicFields = document.getElementById("dynamic-fields");
+        const helperForm = document.getElementById("helper-form");
+        const resetButton = document.getElementById("reset-button");
+        const copyButton = document.getElementById("copy-button");
+        const favoriteButton = document.getElementById("favorite-button");
+        const clearHistoryButton = document.getElementById("clear-history-button");
+        const clearFavoritesButton = document.getElementById("clear-favorites-button");
+        const quickTips = document.getElementById("quick-tips");
+        const resultMessage = document.getElementById("result-message");
+        const resultLink = document.getElementById("result-link");
+        const statusBadge = document.getElementById("status-badge");
+        const historyList = document.getElementById("history-list");
+        const favoritesList = document.getElementById("favorites-list");
+
+        const historyStorageKey = "home-helper-history";
+        const favoritesStorageKey = "home-helper-favorites";
+
+        const modes = {
+            1: {
+                title: "Обществознание",
+                hint: "Введи номер страницы, например 12.",
+                tips: ["12", "34", "56"],
+                fields: `
+                    <label class="field">
+                        <span>Страница</span>
+                        <input type="number" name="page" min="1" placeholder="Например, 12" required>
+                    </label>
+                `,
+                validate(formData) {
+                    const page = Number(formData.get("page"));
+                    if (!Number.isInteger(page) || page < 1) {
+                        throw new Error("Укажи корректный номер страницы.");
+                    }
+                },
+                buildUrl(formData) {
+                    const page = formData.get("page");
+                    return `https://gdz.ru/class-8/obshhestvoznanie/bogolyubov-gorodeckaya/${page}-s/`;
+                },
+                successText: "Ссылка для обществознания готова.",
+                describe(formData) {
+                    return `Обществознание: страница ${formData.get("page")}`;
+                },
+                applyFavorite(entry) {
+                    const input = helperForm.elements.namedItem("page");
+                    input.value = entry.values.page || "";
+                }
+            },
+            2: {
+                title: "История",
+                hint: "Можно вводить один параграф или диапазон, например 1-2.",
+                tips: ["1", "1-2", "7-8"],
+                fields: `
+                    <label class="field">
+                        <span>Параграф или диапазон</span>
+                        <input type="text" name="range" placeholder="Например, 1-2" required>
+                    </label>
+                `,
+                validate(formData) {
+                    const range = formData.get("range").trim();
+                    if (!/^\d+(-\d+)?$/.test(range)) {
+                        throw new Error("Для истории используй формат 1 или 1-2.");
+                    }
+                },
+                buildUrl(formData) {
+                    const range = formData.get("range").trim();
+                    return `https://reshak.ru/otvet/reshebniki.php?otvet=${encodeURIComponent(range)}&predmet=medinsky_torkunov8`;
+                },
+                successText: "Ссылка для истории готова.",
+                describe(formData) {
+                    return `История: ${formData.get("range").trim()}`;
+                },
+                applyFavorite(entry) {
+                    const input = helperForm.elements.namedItem("range");
+                    input.value = entry.values.range || "";
+                }
+            },
+            3: {
+                title: "Английский",
+                hint: "WB — workbook, SB — student book.",
+                tips: ["WB / 45", "SB / 12", "WB / 76"],
+                fields: `
+                    <label class="field">
+                        <span>Тип книги</span>
+                        <select name="book" required>
+                            <option value="WB">WB</option>
+                            <option value="SB">SB</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>Страница</span>
+                        <input type="number" name="page" min="1" placeholder="Например, 45" required>
+                    </label>
+                `,
+                validate(formData) {
+                    const book = formData.get("book");
+                    const page = Number(formData.get("page"));
+
+                    if (!["WB", "SB"].includes(book)) {
+                        throw new Error("Выбери WB или SB.");
+                    }
+
+                    if (!Number.isInteger(page) || page < 1) {
+                        throw new Error("Укажи корректный номер страницы.");
+                    }
+                },
+                buildUrl(formData) {
+                    const book = formData.get("book");
+                    const page = formData.get("page");
+
+                    if (book === "WB") {
+                        return `https://gdz.ru/class-8/english/spotlight-workbook/${page}-s/`;
+                    }
+
+                    return `https://gdz.ru/class-8/english/reshebnik-spotlight-8-angliyskiy-v-fokuse-vaulina-yu-e/${page}-s/`;
+                },
+                successText: "Ссылка для английского готова.",
+                describe(formData) {
+                    return `Английский: ${formData.get("book")} / страница ${formData.get("page")}`;
+                },
+                applyFavorite(entry) {
+                    const bookInput = helperForm.elements.namedItem("book");
+                    const pageInput = helperForm.elements.namedItem("page");
+                    bookInput.value = entry.values.book || "WB";
+                    pageInput.value = entry.values.page || "";
+                }
+            },
+            4: {
+                title: "Химия",
+                hint: "Укажи номер главы и задания, например 3 и 38.",
+                tips: ["3 / 38", "5 / 12", "7 / 41"],
+                fields: `
+                    <label class="field">
+                        <span>Глава</span>
+                        <input type="number" name="chapter" min="1" placeholder="Например, 3" required>
+                    </label>
+                    <label class="field">
+                        <span>Номер задания</span>
+                        <input type="number" name="task" min="1" placeholder="Например, 38" required>
+                    </label>
+                `,
+                validate(formData) {
+                    const chapter = Number(formData.get("chapter"));
+                    const task = Number(formData.get("task"));
+
+                    if (!Number.isInteger(chapter) || chapter < 1 || !Number.isInteger(task) || task < 1) {
+                        throw new Error("Укажи корректные главу и номер задания.");
+                    }
+                },
+                buildUrl(formData) {
+                    const chapter = formData.get("chapter");
+                    const task = formData.get("task");
+                    return `https://gdz.ru/class-8/himiya/sbornik-zadach-po-himii-8-klass-kuznecov/${chapter}-chapter-${task}/`;
+                },
+                successText: "Ссылка для химии готова.",
+                describe(formData) {
+                    return `Химия: глава ${formData.get("chapter")}, задание ${formData.get("task")}`;
+                },
+                applyFavorite(entry) {
+                    const chapterInput = helperForm.elements.namedItem("chapter");
+                    const taskInput = helperForm.elements.namedItem("task");
+                    chapterInput.value = entry.values.chapter || "";
+                    taskInput.value = entry.values.task || "";
+                }
+            }
+        };
+
+        let currentMode = "1";
+        let lastGeneratedUrl = "";
+
+        function getStorage(key) {
+            try {
+                return JSON.parse(localStorage.getItem(key) || "[]");
+            } catch {
+                return [];
+            }
+        }
+
+        function setStorage(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+
+        function getCurrentFormValues() {
+            const formData = new FormData(helperForm);
+            return Object.fromEntries(formData.entries());
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            const config = modes[mode];
+
+            subjectCards.forEach((card) => {
+                card.classList.toggle("subject-card--active", card.dataset.mode === mode);
+            });
+
+            formTitle.textContent = config.title;
+            formHint.textContent = config.hint;
+            dynamicFields.innerHTML = config.fields;
+            renderTips(config.tips);
+            helperForm.reset();
+            resetResult();
+        }
+
+        function renderTips(tips) {
+            quickTips.innerHTML = tips.map((tip) => `<button type="button" class="tip-chip">${tip}</button>`).join("");
+        }
+
+        function resetResult() {
+            lastGeneratedUrl = "";
+            resultMessage.textContent = "Выбери предмет и заполни форму, чтобы получить готовую ссылку.";
+            resultLink.textContent = "Ссылка появится здесь";
+            resultLink.href = "#";
+            resultLink.setAttribute("aria-disabled", "true");
+            resultLink.classList.add("result-link--disabled");
+            statusBadge.textContent = "Ожидание ввода";
+        }
+
+        function showResult(url, text) {
+            lastGeneratedUrl = url;
+            resultMessage.textContent = text;
+            resultLink.textContent = url;
+            resultLink.href = url;
+            resultLink.setAttribute("aria-disabled", "false");
+            resultLink.classList.remove("result-link--disabled");
+            statusBadge.textContent = "Готово";
+        }
+
+        function saveHistory(entry) {
+            const history = getStorage(historyStorageKey)
+                .filter((item) => item.url !== entry.url)
+                .slice(0, 7);
+
+            history.unshift(entry);
+            setStorage(historyStorageKey, history.slice(0, 8));
+            renderHistory();
+        }
+
+        function saveFavorite() {
+            const config = modes[currentMode];
+            const formData = new FormData(helperForm);
+
+            try {
+                config.validate(formData);
+            } catch (error) {
+                statusBadge.textContent = "Ошибка";
+                resultMessage.textContent = error.message;
+                return;
+            }
+
+            const values = getCurrentFormValues();
+            const entry = {
+                id: `${currentMode}-${Date.now()}`,
+                mode: currentMode,
+                label: config.describe(formData),
+                values
+            };
+
+            const favorites = getStorage(favoritesStorageKey);
+            favorites.unshift(entry);
+            setStorage(favoritesStorageKey, favorites.slice(0, 8));
+            renderFavorites();
+            statusBadge.textContent = "Сохранено";
+            resultMessage.textContent = "Шаблон добавлен в избранное.";
+        }
+
+        function renderHistory() {
+            const history = getStorage(historyStorageKey);
+
+            if (!history.length) {
+                historyList.innerHTML = '<p class="empty-state">Последние переходы появятся здесь.</p>';
+                return;
+            }
+
+            historyList.innerHTML = history.map((entry) => `
+                <button type="button" class="history-item" data-url="${entry.url}">
+                    <span class="history-item__title">${entry.label}</span>
+                    <span class="history-item__url">${entry.url}</span>
+                </button>
+            `).join("");
+        }
+
+        function renderFavorites() {
+            const favorites = getStorage(favoritesStorageKey);
+
+            if (!favorites.length) {
+                favoritesList.innerHTML = '<p class="empty-state">Пока пусто. Сохрани часто используемые запросы.</p>';
+                return;
+            }
+
+            favoritesList.innerHTML = favorites.map((entry) => `
+                <button type="button" class="favorite-chip" data-id="${entry.id}">
+                    ${entry.label}
+                </button>
+            `).join("");
+        }
+
+        function applyFavoriteById(id) {
+            const favorites = getStorage(favoritesStorageKey);
+            const entry = favorites.find((item) => item.id === id);
+
+            if (!entry) {
+                return;
+            }
+
+            setMode(entry.mode);
+            modes[entry.mode].applyFavorite(entry);
+            statusBadge.textContent = "Шаблон загружен";
+            resultMessage.textContent = "Данные из избранного подставлены в форму.";
+        }
+
+        async function copyResultLink() {
+            if (!lastGeneratedUrl) {
+                statusBadge.textContent = "Нет ссылки";
+                resultMessage.textContent = "Сначала собери ссылку, потом её можно будет скопировать.";
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(lastGeneratedUrl);
+                statusBadge.textContent = "Скопировано";
+                resultMessage.textContent = "Ссылка скопирована в буфер обмена.";
+            } catch {
+                statusBadge.textContent = "Ошибка";
+                resultMessage.textContent = "Не удалось скопировать ссылку автоматически.";
+            }
+        }
+
+        function applyTip(value) {
+            if (currentMode === "1") {
+                helperForm.elements.namedItem("page").value = value;
+            } else if (currentMode === "2") {
+                helperForm.elements.namedItem("range").value = value;
+            } else if (currentMode === "3") {
+                const [book, page] = value.split("/").map((part) => part.trim());
+                helperForm.elements.namedItem("book").value = book;
+                helperForm.elements.namedItem("page").value = page;
+            } else if (currentMode === "4") {
+                const [chapter, task] = value.split("/").map((part) => part.trim());
+                helperForm.elements.namedItem("chapter").value = chapter;
+                helperForm.elements.namedItem("task").value = task;
+            }
+        }
+
+        subjectCards.forEach((card) => {
+            card.addEventListener("click", () => setMode(card.dataset.mode));
+        });
+
+        helperForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const config = modes[currentMode];
+            const formData = new FormData(helperForm);
+
+            try {
+                config.validate(formData);
+                const url = config.buildUrl(formData);
+                const label = config.describe(formData);
+                showResult(url, config.successText);
+                saveHistory({ label, url, mode: currentMode });
+                window.open(url, "_blank", "noopener,noreferrer");
+            } catch (error) {
+                statusBadge.textContent = "Ошибка";
+                resultMessage.textContent = error.message || "Не удалось сформировать ссылку. Проверь введённые данные.";
+            }
+        });
+
+        resetButton.addEventListener("click", () => {
+            helperForm.reset();
+            resetResult();
+        });
+
+        copyButton.addEventListener("click", copyResultLink);
+        favoriteButton.addEventListener("click", saveFavorite);
+
+        clearHistoryButton.addEventListener("click", () => {
+            localStorage.removeItem(historyStorageKey);
+            renderHistory();
+        });
+
+        clearFavoritesButton.addEventListener("click", () => {
+            localStorage.removeItem(favoritesStorageKey);
+            renderFavorites();
+        });
+
+        quickTips.addEventListener("click", (event) => {
+            const button = event.target.closest(".tip-chip");
+            if (!button) {
+                return;
+            }
+
+            applyTip(button.textContent.trim());
+        });
+
+        historyList.addEventListener("click", (event) => {
+            const item = event.target.closest(".history-item");
+            if (!item) {
+                return;
+            }
+
+            const url = item.dataset.url;
+            window.open(url, "_blank", "noopener,noreferrer");
+        });
+
+        favoritesList.addEventListener("click", (event) => {
+            const item = event.target.closest(".favorite-chip");
+            if (!item) {
+                return;
+            }
+
+            applyFavoriteById(item.dataset.id);
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                helperForm.reset();
+                resetResult();
+            }
+        });
+
+        renderHistory();
+        renderFavorites();
+        setMode(currentMode);
+    </script>
+</body>
+</html>
