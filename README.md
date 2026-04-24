@@ -2,4 +2,4 @@
 
 ## Best change
 
-![GdzUdomlyaLogo](./resourses/ReadmeImages/logo1.png)
+![GdzUdomlyaLogo](./resourses/ReadmeImages/logo.png)
